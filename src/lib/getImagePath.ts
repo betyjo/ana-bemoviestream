@@ -1,79 +1,122 @@
-import { SearchResults } from "../../type";
-const fetcher = async (url: URL, cacheTime?: number) => {
-  url.searchParams.set("include_adult", "false");
-  url.searchParams.set("include_video", "false");
-  url.searchParams.set("sort_by", "popularity.desc");
-  url.searchParams.set("language", "en-US");
-  url.searchParams.set("page", "1");
+import prisma from "@/lib/prisma"; 
+import { Movie } from "../../type";
 
-  const options: RequestInit = {
-    method: "GET",
-    headers: {
-      accept: "application/json",
-      Authorization: `Bearer ${process.env.TMDB_READ_ACCESS_KEY}`,
+// Get all "Now Playing" movies (example: filter by release date <= today)
+export const getNowPlayingMovies = async (): Promise<Movie[]> => {
+  const movies = await prisma.movie.findMany({
+    where: {
+      release_date: {
+        lte: new Date(),
+      },
     },
-    next: {
-      revalidate: cacheTime || 60 * 60 * 24,
+    orderBy: {
+      popularity: "desc",
     },
-  };
+  });
 
-  const response = await fetch(url.toString(), options);
-  const data = (await response.json()) as SearchResults;
-
-  return data;
+  return movies;
 };
 
-export const getNowPlayingMovies = async () => {
-  const url = new URL("https://api.themoviedb.org/3/movie/now_playing");
-  const data = await fetcher(url);
-  return data.results;
+// Get "Upcoming" movies (release date > today)
+export const getUpcomingMovies = async (): Promise<Movie[]> => {
+  const movies = await prisma.movie.findMany({
+    where: {
+      release_date: {
+        gt: new Date(),
+      },
+    },
+    orderBy: {
+      release_date: "asc",
+    },
+  });
+
+  return movies;
 };
 
-export const getUpcomingMovies = async () => {
-  const url = new URL("https://api.themoviedb.org/3/movie/upcoming");
-  const data = await fetcher(url);
-  return data.results;
+// Get top-rated movies
+export const getTopRatedMovies = async (): Promise<Movie[]> => {
+  const movies = await prisma.movie.findMany({
+    orderBy: {
+      vote_average: "desc",
+    },
+  });
+
+  return movies;
 };
 
-export const getTopRatedMovies = async () => {
-  const url = new URL("https://api.themoviedb.org/3/movie/top_rated");
-  const data = await fetcher(url);
-  return data.results;
+// Get popular movies (by popularity)
+export const getPopularMovies = async (): Promise<Movie[]> => {
+  const movies = await prisma.movie.findMany({
+    orderBy: {
+      popularity: "desc",
+    },
+  });
+
+  return movies;
 };
 
-export const getPopularMovies = async () => {
-  const url = new URL("https://api.themoviedb.org/3/movie/popular");
-  const data = await fetcher(url);
-  return data.results;
+// Discover movies by genre or keywords
+export const getDiscoverMovies = async (
+  genreId?: number,
+  keywords?: string
+): Promise<Movie[]> => {
+  const where: any = {};
+
+  if (genreId) {
+    // assuming genreIds is an integer array in Prisma
+    where.genreIds = {
+      has: genreId,
+    };
+  }
+
+  if (keywords) {
+    where.title = {
+      contains: keywords,
+      mode: "insensitive",
+    };
+  }
+
+  const movies = await prisma.movie.findMany({
+    where,
+    orderBy: {
+      popularity: "desc",
+    },
+  });
+
+  return movies;
 };
 
-export const getDiscoverMovies = async (id?: string, keywords?: string) => {
-  const url = new URL("https://api.themoviedb.org/3/discover/movie");
+// Search movies by term
+export const getSearchedMovies = async (term: string): Promise<Movie[]> => {
+  const movies = await prisma.movie.findMany({
+    where: {
+      title: {
+        contains: term,
+        mode: "insensitive",
+      },
+    },
+    orderBy: {
+      popularity: "desc",
+    },
+  });
 
-  keywords && url.searchParams.set("with_keywords", keywords);
-  id && url.searchParams.set("with_genres", id);
-
-  const data = await fetcher(url);
-  return data.results;
+  return movies;
 };
 
-export const getSearchedMovies = async (term: string) => {
-  const url = new URL("https://api.themoviedb.org/3/search/movie");
-  url.searchParams.set("query", term);
+// Get a single movie by ID
+export const getMovieDetails = async (id: number): Promise<Movie | null> => {
+  const movie = await prisma.movie.findUnique({
+    where: { id },
+  });
 
-  const data = await fetcher(url);
-  return data.results;
+  return movie;
 };
 
-export const getMovieVideos = async (id?: string) => {
-  const url = new URL(`https://api.themoviedb.org/3/movie/${id}/videos`);
+// Get videos for a movie
+export const getMovieVideos = async (id: number) => {
+  const videos = await prisma.video.findMany({
+    where: { movieId: id },
+  });
 
-  const data = await fetcher(url);
-  return data.results;
-};
-export const getMovieDetails = async (id?: string) => {
-  const url = new URL(`https://api.themoviedb.org/3/movie/${id}`);
-
-  const data = await fetcher(url);
-  return data;
+  return videos;
 };
