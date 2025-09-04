@@ -1,7 +1,6 @@
 import prisma from "@/lib/prisma"; 
 import { Movie } from "../../type";
 
-// Get all "Now Playing" movies (example: filter by release date <= today)
 export const getNowPlayingMovies = async (): Promise<Movie[]> => {
   const movies = await prisma.movie.findMany({
     where: {
@@ -17,7 +16,7 @@ export const getNowPlayingMovies = async (): Promise<Movie[]> => {
   return movies;
 };
 
-// Get "Upcoming" movies (release date > today)
+
 export const getUpcomingMovies = async (): Promise<Movie[]> => {
   const movies = await prisma.movie.findMany({
     where: {
@@ -33,7 +32,7 @@ export const getUpcomingMovies = async (): Promise<Movie[]> => {
   return movies;
 };
 
-// Get top-rated movies
+
 export const getTopRatedMovies = async (): Promise<Movie[]> => {
   const movies = await prisma.movie.findMany({
     orderBy: {
@@ -44,7 +43,7 @@ export const getTopRatedMovies = async (): Promise<Movie[]> => {
   return movies;
 };
 
-// Get popular movies (by popularity)
+
 export const getPopularMovies = async (): Promise<Movie[]> => {
   const movies = await prisma.movie.findMany({
     orderBy: {
@@ -55,7 +54,7 @@ export const getPopularMovies = async (): Promise<Movie[]> => {
   return movies;
 };
 
-// Discover movies by genre or keywords
+
 export const getDiscoverMovies = async (
   genreId?: number,
   keywords?: string
@@ -63,7 +62,7 @@ export const getDiscoverMovies = async (
   const where: any = {};
 
   if (genreId) {
-    // assuming genreIds is an integer array in Prisma
+   
     where.genreIds = {
       has: genreId,
     };
@@ -86,7 +85,7 @@ export const getDiscoverMovies = async (
   return movies;
 };
 
-// Search movies by term
+
 export const getSearchedMovies = async (term: string): Promise<Movie[]> => {
   const movies = await prisma.movie.findMany({
     where: {
@@ -103,7 +102,7 @@ export const getSearchedMovies = async (term: string): Promise<Movie[]> => {
   return movies;
 };
 
-// Get a single movie by ID
+
 export const getMovieDetails = async (id: number): Promise<Movie | null> => {
   const movie = await prisma.movie.findUnique({
     where: { id },

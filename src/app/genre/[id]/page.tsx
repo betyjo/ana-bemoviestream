@@ -14,7 +14,7 @@ const GenrePage = async ({
   params: { id },
   searchParams: { genre },
 }: Props) => {
-  const movies = await getDiscoverMovies(id);
+  const movies = await getDiscoverMovies(parseInt(id, 10));
   return (
     <div className="py-10 max-w-screen-xl mx-auto">
       <h2 className="text-4xl font-bold px-10 mb-5">Results for {genre}</h2>

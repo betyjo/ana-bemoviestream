@@ -21,7 +21,7 @@ interface Props {
 }
 
 const MovieDetails = async ({ params: { id } }: Props) => {
-  const movies = await getMovieVideos(id);
+  const movies = await getMovieVideos(Number(id));
   const videos = movies.map((movie: any) => ({
     id: movie.id,
     iso_639_1: movie.iso_639_1,
@@ -34,7 +34,7 @@ const MovieDetails = async ({ params: { id } }: Props) => {
     size: movie.size,
     type: movie.type,
   }));
-  const details: any = await getMovieDetails(id);
+  const details: any = await getMovieDetails(Number(id));
   const popoularMovies = await getPopularMovies();
 
   return (
