@@ -1,57 +1,49 @@
-import prisma from "@/lib/prisma"; 
-import { Movie } from "../../type";
+import prisma from "@/lib/prisma";
+import { Movie, VideoProps } from "../../type";
+
+export function getImagePath(path?: string, p0?: boolean): string {
+  if (!path || path === "") return "/placeholder.jpg"; // add a placeholder in public/
+  return path.startsWith("/") ? path : `/${path}`;
+}
+
+const mapMoviePaths = (movie: Movie): Movie => ({
+  ...movie,
+  poster_path: getImagePath(movie.poster_path),
+  backdrop_path: getImagePath(movie.backdrop_path),
+});
+
 
 export const getNowPlayingMovies = async (): Promise<Movie[]> => {
   const movies = await prisma.movie.findMany({
-    where: {
-      release_date: {
-        lte: new Date(),
-      },
-    },
-    orderBy: {
-      popularity: "desc",
-    },
+    where: { release_date: { lte: new Date() } },
+    orderBy: { popularity: "desc" },
   });
-
-  return movies;
+  return movies.map(mapMoviePaths);
 };
 
 
 export const getUpcomingMovies = async (): Promise<Movie[]> => {
   const movies = await prisma.movie.findMany({
-    where: {
-      release_date: {
-        gt: new Date(),
-      },
-    },
-    orderBy: {
-      release_date: "asc",
-    },
+    where: { release_date: { gt: new Date() } },
+    orderBy: { release_date: "asc" },
   });
-
-  return movies;
+  return movies.map(mapMoviePaths);
 };
 
 
 export const getTopRatedMovies = async (): Promise<Movie[]> => {
   const movies = await prisma.movie.findMany({
-    orderBy: {
-      vote_average: "desc",
-    },
+    orderBy: { vote_average: "desc" },
   });
-
-  return movies;
+  return movies.map(mapMoviePaths);
 };
 
 
 export const getPopularMovies = async (): Promise<Movie[]> => {
   const movies = await prisma.movie.findMany({
-    orderBy: {
-      popularity: "desc",
-    },
+    orderBy: { popularity: "desc" },
   });
-
-  return movies;
+  return movies.map(mapMoviePaths);
 };
 
 
@@ -60,62 +52,33 @@ export const getDiscoverMovies = async (
   keywords?: string
 ): Promise<Movie[]> => {
   const where: any = {};
-
-  if (genreId) {
-   
-    where.genreIds = {
-      has: genreId,
-    };
-  }
-
-  if (keywords) {
-    where.title = {
-      contains: keywords,
-      mode: "insensitive",
-    };
-  }
+  if (genreId) where.genreIds = { has: genreId };
+  if (keywords) where.title = { contains: keywords, mode: "insensitive" };
 
   const movies = await prisma.movie.findMany({
     where,
-    orderBy: {
-      popularity: "desc",
-    },
+    orderBy: { popularity: "desc" },
   });
-
-  return movies;
+  return movies.map(mapMoviePaths);
 };
 
 
 export const getSearchedMovies = async (term: string): Promise<Movie[]> => {
   const movies = await prisma.movie.findMany({
-    where: {
-      title: {
-        contains: term,
-        mode: "insensitive",
-      },
-    },
-    orderBy: {
-      popularity: "desc",
-    },
+    where: { title: { contains: term, mode: "insensitive" } },
+    orderBy: { popularity: "desc" },
   });
-
-  return movies;
+  return movies.map(mapMoviePaths);
 };
 
 
 export const getMovieDetails = async (id: number): Promise<Movie | null> => {
-  const movie = await prisma.movie.findUnique({
-    where: { id },
-  });
-
-  return movie;
+  const movie = await prisma.movie.findUnique({ where: { id } });
+  if (!movie) return null;
+  return mapMoviePaths(movie);
 };
 
-// Get videos for a movie
-export const getMovieVideos = async (id: number) => {
-  const videos = await prisma.video.findMany({
-    where: { movieId: id },
-  });
 
-  return videos;
+export const getMovieVideos = async (movieId: number): Promise<VideoProps[]> => {
+  return prisma.video.findMany({ where: { movieId } });
 };
