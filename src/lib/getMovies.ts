@@ -3,7 +3,7 @@ import { Movie, VideoProps } from "../../type";
 
 
 export function getImagePath(path?: string): string {
-  if (!path || path === "") return "/placeholder.jpg"; // make sure this exists in public/
+  if (!path || path === "") return "/placeholder.jpg"; 
   return path.startsWith("/") ? path : `/${path}`;
 }
 

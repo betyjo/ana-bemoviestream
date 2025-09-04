@@ -26,17 +26,18 @@ const SearchInput = () => {
 
   return (
     <Form {...form}>
-      <form
-        onSubmit={form.handleSubmit(onSubmit)}
-        className="text-black space-y-1"
-      >
+      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-1">
         <FormField
           control={form.control}
           name="input"
           render={({ field }) => (
             <FormItem>
               <FormControl>
-                <Input placeholder="Search ..." {...field} />
+                <Input
+                  placeholder="Search ..."
+                  {...field}
+                  className="bg-gray-200 text-gray-800 placeholder-gray-500"
+                />
               </FormControl>
             </FormItem>
           )}

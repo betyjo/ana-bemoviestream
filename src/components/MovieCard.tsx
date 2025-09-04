@@ -32,7 +32,7 @@ const MovieCard: React.FC<MovieCardProps> = ({ movie }) => {
         width={1920}
         height={1080}
         className="w-fit lg:min-w-[400px] h-56 object-cover shadow-md shadow-gray-900 drop-shadow-xl"
-        priority={false} // avoid preloading all cards
+        priority={false}
       />
     </div>
   );

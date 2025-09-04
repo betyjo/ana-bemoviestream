@@ -84,7 +84,7 @@ const Footer = () => {
           <span className="w-16 h-1 bg-red-600 inline-block absolute left-0 -bottom-[1.5px] z-10" />
         </h2>
         <Link href={"/"}>
-          <img src="logo.png" alt="Logo" width={120} height={100} />
+          <img src="logo.png" alt="Logo" width={20} height={20} />
         </Link>
         <p className="text-gray-200 text-sm leading-6 tracking-wide mt-5 max-w-72">
           all your favorite movies streaming now! enjoy!
@@ -110,9 +110,6 @@ const Footer = () => {
           <span className="w-16 h-1 bg-red-600 inline-block absolute left-0 -bottom-[1.5px] z-10" />
         </h2>
         <div className="text-gray-300 text-sm flex flex-col gap-2">
-          <p>
-            Phone: <span className="text-white font-medium">001 7728 3369</span>
-          </p>
           <p>
             Email:{" "}
             <span className="text-white font-medium">
