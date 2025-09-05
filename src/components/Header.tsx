@@ -76,7 +76,7 @@ const Header: React.FC = () => {
             className="bg-green-600 hover:bg-green-700 px-3 py-1 rounded"
             onClick={() => {
               setShowSignIn(!showSignIn);
-              setShowSignUp(false); // close Sign Up if open
+              setShowSignUp(false);
             }}
           >
             Sign In
@@ -94,7 +94,7 @@ const Header: React.FC = () => {
             className="bg-blue-600 hover:bg-blue-700 px-3 py-1 rounded"
             onClick={() => {
               setShowSignUp(!showSignUp);
-              setShowSignIn(false); // close Sign In if open
+              setShowSignIn(false);
             }}
           >
             Sign Up

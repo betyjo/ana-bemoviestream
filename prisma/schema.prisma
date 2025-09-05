@@ -3,9 +3,10 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql" 
+  provider = "postgresql"
   url      = env("DATABASE_URL")
 }
+
 model User {
   id       Int      @id @default(autoincrement())
   username String   @unique
@@ -15,23 +16,25 @@ model User {
 }
 
 model Genre {
-  id     Int     @id @default(autoincrement())
+  id     Int          @id @default(autoincrement())
   name   String
   movies MovieGenre[]
 }
 
 model Movie {
-  id           Int     @id @default(autoincrement())
-  title        String
-  overview     String?
-  release_date DateTime?
-  poster_path  String?
+  id            Int       @id @default(autoincrement())
+  title         String
+  overview      String?
+  release_date  DateTime?
+  poster_path   String?
   backdrop_path String?
-  popularity   Float?
-  vote_average Float?
-  vote_count   Int?
-  video        Boolean?
-  genres       MovieGenre[]
+  popularity    Float?
+  vote_average  Float?
+  vote_count    Int?
+  video         Boolean?
+
+  genres MovieGenre[]
+  videos Video[] // <-- added opposite relation for Video
 }
 
 model MovieGenre {
@@ -39,14 +42,28 @@ model MovieGenre {
   genreId Int
   movie   Movie @relation(fields: [movieId], references: [id])
   genre   Genre @relation(fields: [genreId], references: [id])
+
   @@id([movieId, genreId])
 }
 
 model Upload {
-  id        Int      @id @default(autoincrement())
-  filename  String
-  url       String
+  id         Int      @id @default(autoincrement())
+  filename   String
+  url        String
   uploadedBy Int
-  user      User     @relation(fields: [uploadedBy], references: [id])
-  createdAt DateTime @default(now())
+  user       User     @relation(fields: [uploadedBy], references: [id])
+  createdAt  DateTime @default(now())
+}
+
+model Video {
+  id       Int      @id @default(autoincrement())
+  movieId  Int
+  name     String
+  url      String
+  type     String?
+  size     Int?
+  site     String?
+  official Boolean?
+
+  movie Movie @relation(fields: [movieId], references: [id])
 }

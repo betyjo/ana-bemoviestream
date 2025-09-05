@@ -1,19 +1,25 @@
 import prisma from "@/lib/prisma";
-import type { Genre } from "../../type"; // 
+import type { Genre } from "@/type";
 
-export const getAllGenres = async (genreId: number): Promise<Genre[]> => {
- 
+export const getAllGenres = async (): Promise<Genre[]> => {
+  // Fetch the MovieGenre relations instead of a non-existent `genreIds`
   const movies = await prisma.movie.findMany({
-    select: { genreIds: true },
+    select: {
+      genres: {
+        select: {
+          genreId: true,
+        },
+      },
+    },
   });
-
 
   const genreSet = new Set<number>();
-  movies.forEach((movie: { genreIds: any[]; }) => {
-    movie.genreIds.forEach((id) => genreSet.add(id));
+
+  // Extract genre IDs from the relation
+  movies.forEach((movie) => {
+    movie.genres.forEach((mg) => genreSet.add(mg.genreId));
   });
 
- 
   return Array.from(genreSet).map((id) => ({
     id,
     name: getGenreNameById(id),

@@ -18,6 +18,7 @@ interface Props {
   params: { id: string };
 }
 
+// Helper to transform movie data safely
 const transformMovie = (movie: any): Movie => ({
   ...movie,
   release_date: movie.release_date ? String(movie.release_date) : null,
@@ -27,7 +28,6 @@ const transformMovie = (movie: any): Movie => ({
 });
 
 const MovieDetails = async (props: Props) => {
-  // Dynamic route params must be awaited in Next 22
   const { params } = props;
   const id = Number(params.id);
 
@@ -40,11 +40,13 @@ const MovieDetails = async (props: Props) => {
     name: v.name,
     site: v.site,
     type: v.type,
-    official: v.official ?? null,
-    size: v.size ?? null,
-    published_at: v.published_at ?? null,
-    iso_639_1: v.iso_639_1 ?? null,
-    iso_3166_1: v.iso_3166_1 ?? null,
+    official: v.official ?? false, // default to false
+    size: v.size ?? 0, // default to 0
+    published_at: v.published_at
+      ? new Date(v.published_at).toLocaleDateString()
+      : "", // always string
+    iso_639_1: v.iso_639_1 ?? "",
+    iso_3166_1: v.iso_3166_1 ?? "",
   }));
 
   const rawDetails = await getMovieDetails(id);
