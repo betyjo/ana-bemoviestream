@@ -1,36 +1,31 @@
+// Movie type
 export type Movie = {
-  adult: boolean;
-  backdrop_path: string;
-  genre_ids: number[];
   id: number;
-  original_language: string;
-  original_title: string;
-  overview: string;
-  popularity: number;
-  poster_path?: string;
-  release_date: string;
   title: string;
-  video: boolean;
+  overview: string;
+  release_date: Date | string;
+  popularity: number;
   vote_average: number;
   vote_count: number;
+  poster_path: string;
+  backdrop_path: string;
+  video: boolean;
+  genre_ids: number[];
+  genres?: Genre[];       // optional array of genre objects
+  tagline?: string;
+  status?: string;
+  adult?: boolean;
+  original_language?: string;
+  original_title?: string;
 };
 
-export type SearchResults = {
-  page: number;
-  results: Movie[];
-  total_pages: number;
-  total_results: number;
-};
-
+// Genre type
 export type Genre = {
   id: number;
   name: string;
 };
 
-export type Genres = {
-  genres: Genre[];
-};
-
+// Video type
 export type VideoProps = {
   id: string;
   iso_639_1: string;
@@ -42,6 +37,18 @@ export type VideoProps = {
   site: string;
   size: number;
   type: string;
+};
+
+// Collection types
+export type SearchResults = {
+  page: number;
+  results: Movie[];
+  total_pages: number;
+  total_results: number;
+};
+
+export type Genres = {
+  genres: Genre[];
 };
 
 export type Videos = {

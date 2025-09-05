@@ -3,8 +3,14 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
+  provider = "postgresql" // or "mysql" / "sqlite"
   url      = env("DATABASE_URL")
+}
+
+model Genre {
+  id     Int     @id @default(autoincrement())
+  name   String
+  movies MovieGenre[]
 }
 
 model Movie {
@@ -12,27 +18,25 @@ model Movie {
   title        String
   overview     String?
   release_date DateTime?
-  popularity   Float?     @default(0)
-  vote_average Float?     @default(0)
-  vote_count   Int?       @default(0)
   poster_path  String?
   backdrop_path String?
-  genreIds     Int[]
-  video        Boolean?   @default(false)
+  popularity   Float?
+  vote_average Float?
+  vote_count   Int?
+  video        Boolean?
+  
+  genres       MovieGenre[]
 
-  videos       Video[]
+  @@map("movies")
 }
 
-model Video {
-  id       Int     @id @default(autoincrement())
-  movieId  Int
-  key      String
-  name     String
-  site     String
-  type     String
-  official Boolean?
-  size     Int?
-  published_at DateTime?
+model MovieGenre {
+  movieId Int
+  genreId Int
 
-  movie Movie @relation(fields: [movieId], references: [id])
+  movie   Movie @relation(fields: [movieId], references: [id])
+  genre   Genre @relation(fields: [genreId], references: [id])
+
+  @@id([movieId, genreId])
+  @@map("movie_genres")
 }
