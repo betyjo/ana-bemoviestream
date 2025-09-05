@@ -1,16 +1,37 @@
 import prisma from "@/lib/prisma";
 import { NextResponse } from "next/server";
 
-// GET /api/movies/genre/:id
 export async function GET(
   req: Request,
   { params }: { params: { id: string } }
 ) {
-  const genreId = parseInt(params.id);
+  const genreId = parseInt(params.id, 10);
 
+  // Fetch all movies that belong to this genre
   const movies = await prisma.movie.findMany({
-    where: { genreIds: { has: genreId } },
+    where: {
+      genres: {
+        some: { genreId }, // filter by join table
+      },
+    },
+    include: {
+      genres: {
+        include: { genre: true },
+      },
+    },
   });
 
-  return NextResponse.json(movies);
+  // Grab the genre itself
+  const genre = await prisma.genre.findUnique({
+    where: { id: genreId },
+  });
+
+  if (!genre) {
+    return NextResponse.json({ error: "Genre not found" }, { status: 404 });
+  }
+
+  return NextResponse.json({
+    genre,
+    movies,
+  });
 }

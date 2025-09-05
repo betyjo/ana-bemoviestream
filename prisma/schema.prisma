@@ -34,7 +34,7 @@ model Movie {
   video         Boolean?
 
   genres MovieGenre[]
-  videos Video[] // <-- added opposite relation for Video
+  videos Video[] 
 }
 
 model MovieGenre {

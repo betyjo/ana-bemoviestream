@@ -1,4 +1,4 @@
-import NextAuth, { AuthOptions } from "next-auth";
+import NextAuth, { AuthOptions, Session, JWT } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 import prisma from "./prisma";
 import bcrypt from "bcrypt";
@@ -22,23 +22,27 @@ export const authOptions: AuthOptions = {
         const isValid = await bcrypt.compare(credentials.password, user.password);
         if (!isValid) return null;
 
-        return { id: user.id, username: user.username, role: user.role };
+        return { id: user.id.toString(), name: user.username, role: user.role };
       },
     }),
   ],
   session: {
-    strategy: "jwt" as const,
+    strategy: "jwt",
   },
   callbacks: {
-    async jwt({ token, user }: { token: any; user?: any }) {
-      if (user) token.id = user.id;
-      if (user) token.role = user.role;
+    async jwt({ token, user }) {
+      if (user) {
+        token.id = user.id;
+        token.role = user.role;
+      }
       return token;
     },
-    async session({ session, token }: { session: any; token: any }) {
+    async session({ session, token }) {
+      // cast token to include our custom properties
+      const t = token as JWT & { id?: string; role?: string };
       if (session.user) {
-        session.user.id = token.id;
-        session.user.role = token.role;
+        session.user.id = t.id ?? "";
+        session.user.role = t.role ?? "";
       }
       return session;
     },
@@ -46,4 +50,7 @@ export const authOptions: AuthOptions = {
   pages: {
     signIn: "/auth/signin",
   },
+  secret: process.env.NEXTAUTH_SECRET,
 };
+
+export default NextAuth(authOptions);

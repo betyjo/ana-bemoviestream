@@ -2,19 +2,25 @@ import prisma from "@/lib/prisma";
 import { NextResponse } from "next/server";
 
 export async function GET() {
-  const movies = (await prisma.movie.findMany({
-    select: { genreIds: true },
-  })) as { genreIds: number[] }[];
-
-  const genreSet = new Set<number>();
-  movies.forEach((movie) => {
-    movie.genreIds.forEach((id) => genreSet.add(id));
+  const movies = await prisma.movie.findMany({
+    include: {
+      genres: {
+        include: {
+          genre: true,
+        },
+      },
+    },
   });
 
-  const genres = Array.from(genreSet).map((id) => ({
-    id,
-    name: `Genre ${id}`,
-  }));
+  const genreMap = new Map<number, { id: number; name: string }>();
 
-  return NextResponse.json(genres);
+  movies.forEach((movie) => {
+    movie.genres.forEach((mg) => {
+      genreMap.set(mg.genre.id, { id: mg.genre.id, name: mg.genre.name });
+    });
+  });
+
+  const genres = Array.from(genreMap.values());
+
+  return NextResponse.json({ genres, movies });
 }
