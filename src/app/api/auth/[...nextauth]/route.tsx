@@ -10,7 +10,6 @@ export const authOptions = {
         password: { label: "Password", type: "password" },
       },
       async authorize(credentials) {
-        // Replace this with your DB logic
         if (
           credentials?.username === "admin" &&
           credentials?.password === "password"
@@ -25,7 +24,7 @@ export const authOptions = {
     strategy: "jwt" as const,
   },
   pages: {
-    signIn: "/auth/signin", // custom signin page
+    signIn: "/auth/signin",
   },
 };
 

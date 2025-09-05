@@ -2,8 +2,8 @@ import prisma from "@/lib/prisma";
 import { Movie, VideoProps } from "../../type";
 
 export function getImagePath(path?: string, p0?: boolean): string {
-  if (!path || path === "") return "/placeholder.jpg";
-  return path.startsWith("/") ? path : `/posters/${path}`;
+  if (!path) return "/placeholder.jpg";
+  return `/posters/${path}`;
 }
 
 const mapMoviePaths = (movie: Movie): Movie => ({
