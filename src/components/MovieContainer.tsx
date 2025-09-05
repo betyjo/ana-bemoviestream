@@ -32,23 +32,34 @@ const MovieContainer = ({ title, movies, isVertical }: Props) => {
         )}
       >
         {isVertical
-          ? movies.map((movie) => (
-              <div
-                key={movie.id}
-                className={cn(
-                  "flex flex-col space-y-5 mb-5 items-center lg:flex-row space-x-5"
-                )}
-              >
-                <MovieCard movie={movie} />
-                <div className="max-w-2xl">
-                  <p className="font-bold">
-                    {movie.title} ({movie.release_date?.split("-")[0]})
-                  </p>
-                  <hr className="mb-3" />
-                  <p>{movie.overview}</p>
+          ? movies.map((movie) => {
+              // Ensure release_date is always a string for JSX
+              const releaseYear = movie.release_date
+                ? typeof movie.release_date === "string"
+                  ? new Date(movie.release_date).getFullYear()
+                  : movie.release_date instanceof Date
+                  ? movie.release_date.getFullYear()
+                  : "Unknown"
+                : "Unknown";
+
+              return (
+                <div
+                  key={movie.id}
+                  className={cn(
+                    "flex flex-col space-y-5 mb-5 items-center lg:flex-row space-x-5"
+                  )}
+                >
+                  <MovieCard movie={movie} />
+                  <div className="max-w-2xl">
+                    <p className="font-bold">
+                      {movie.title} ({releaseYear})
+                    </p>
+                    <hr className="mb-3" />
+                    <p>{movie.overview ?? "No overview available."}</p>
+                  </div>
                 </div>
-              </div>
-            ))
+              );
+            })
           : movies.map((movie) => <MovieCard key={movie.id} movie={movie} />)}
       </div>
     </div>

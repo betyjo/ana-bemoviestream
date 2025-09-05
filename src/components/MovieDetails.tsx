@@ -6,61 +6,59 @@ import {
   getMovieVideos,
   getPopularMovies,
 } from "@/lib/getMovies";
-import Image from "next/image";
 import { Metadata } from "next";
-import { Movie, VideoProps } from "@/type";
+import Image from "next/image";
+import React from "react";
 
 export const metadata: Metadata = {
   title: "Movie Studio Clone || Movie Details page",
 };
 
 interface Props {
-  params: { id: string };
+  params: {
+    id: string;
+  };
 }
 
-// Helper to transform movie data safely
-const transformMovie = (movie: any): Movie => ({
-  ...movie,
-  release_date: movie.release_date ? String(movie.release_date) : null,
-  genres: movie.genres ?? [],
-  tagline: movie.tagline ?? null,
-  status: movie.status ?? null,
-});
-
-const MovieDetails = async (props: Props) => {
-  const { params } = props;
-  const id = Number(params.id);
-
-  // Fetch videos and details
-  const videosData = (await getMovieVideos(id)) || [];
-  const videos: VideoProps[] = videosData.map((v: any) => ({
+const MovieDetails = async ({ params: { id } }: Props) => {
+  // Fetch videos
+  const videosData = await getMovieVideos(Number(id));
+  const videos = videosData.map((v: any) => ({
     id: v.id,
-    movieId: v.movieId,
-    key: v.key,
-    name: v.name,
-    site: v.site,
-    type: v.type,
-    official: v.official ?? false, // default to false
-    size: v.size ?? 0, // default to 0
-    published_at: v.published_at
-      ? new Date(v.published_at).toLocaleDateString()
-      : "", // always string
     iso_639_1: v.iso_639_1 ?? "",
     iso_3166_1: v.iso_3166_1 ?? "",
+    key: v.key,
+    name: v.name,
+    official: v.official ?? false,
+    published_at: v.published_at
+      ? new Date(v.published_at).toLocaleDateString()
+      : "Unknown",
+    site: v.site ?? "",
+    size: v.size ?? 0,
+    type: v.type ?? "",
   }));
 
-  const rawDetails = await getMovieDetails(id);
-  const details: Movie = transformMovie(rawDetails);
+  // Fetch movie details
+  const rawDetails: any = await getMovieDetails(Number(id));
+  const details = {
+    ...rawDetails,
+    release_date: rawDetails.release_date
+      ? new Date(rawDetails.release_date).toLocaleDateString()
+      : "Unknown",
+    genres: rawDetails.genres ?? [],
+    tagline: rawDetails.tagline ?? "N/A",
+    status: rawDetails.status ?? "Unknown",
+  };
 
-  const popularMovies: Movie[] = ((await getPopularMovies()) || []).map(
-    transformMovie
-  );
-
-  const releaseDate = details.release_date
-    ? new Date(details.release_date).toLocaleDateString()
-    : "Unknown";
-
-  const genres = details.genres ?? [];
+  // Fetch popular movies
+  const rawPopular = await getPopularMovies();
+  const popularMovies = rawPopular.map((m: any) => ({
+    ...m,
+    release_date: m.release_date
+      ? new Date(m.release_date).toLocaleDateString()
+      : "Unknown",
+    genres: m.genres ?? [],
+  }));
 
   return (
     <div className="px-10">
@@ -97,24 +95,22 @@ const MovieDetails = async (props: Props) => {
           </p>
           <p className="text-gray-200 text-sm">
             Release Date:{" "}
-            <span className="text-white font-medium">{releaseDate}</span>
+            <span className="text-white font-medium">
+              {details.release_date}
+            </span>
           </p>
           <p className="text-gray-200 text-sm">
             Genres:{" "}
-            {genres.length
-              ? genres.map((g, idx) => (
-                  <span key={g.id} className="text-white font-medium mr-1">
-                    {g.name}
-                    {idx < genres.length - 1 ? "," : ""}
-                  </span>
-                ))
-              : "N/A"}
+            {details.genres.map((item: any, idx: number) => (
+              <span key={item.id} className="text-white font-medium mr-1">
+                {item.name}
+                {idx < details.genres.length - 1 ? "," : ""}
+              </span>
+            ))}
           </p>
           <p className="text-gray-200 text-sm">
             Tagline:{" "}
-            <span className="text-white font-medium">
-              {details.tagline ?? "N/A"}
-            </span>
+            <span className="text-white font-medium">{details.tagline}</span>
           </p>
           <p className="text-gray-200 text-sm">
             Status:{" "}
@@ -125,7 +121,7 @@ const MovieDetails = async (props: Props) => {
                   : "text-red-500"
               }`}
             >
-              {details.status ?? "Unknown"}
+              {details.status}
             </span>
           </p>
         </div>

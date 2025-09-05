@@ -8,7 +8,22 @@ export async function GET(req, { params }) {
     include: { videos: true },
   });
 
-  if (!movie) return NextResponse.json({ error: "Movie not found" }, { status: 404 });
+  if (!movie)
+    return NextResponse.json({ error: "Movie not found" }, { status: 404 });
 
-  return NextResponse.json(movie);
+  // Convert all Date fields to ISO strings
+  const serializedMovie = {
+    ...movie,
+    release_date: movie.release_date
+      ? movie.release_date.toISOString()
+      : null,
+    createdAt: movie.createdAt ? movie.createdAt.toISOString() : null, // if exists
+    updatedAt: movie.updatedAt ? movie.updatedAt.toISOString() : null, // if exists
+    videos: movie.videos.map((v) => ({
+      ...v,
+      published_at: v.published_at ? v.published_at.toISOString() : null,
+    })),
+  };
+
+  return NextResponse.json(serializedMovie);
 }

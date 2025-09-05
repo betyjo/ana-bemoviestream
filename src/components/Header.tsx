@@ -21,7 +21,7 @@ const Header: React.FC = () => {
       {/* Logo */}
       <Link href="/" passHref>
         <Image
-          src="/logo.svg"
+          src="/logo.png"
           alt="Logo"
           width={120}
           height={100}

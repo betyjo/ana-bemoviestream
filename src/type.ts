@@ -1,5 +1,6 @@
 // Movie type
 export type Movie = {
+  genre: any;
   id: number;
   title: string;
   overview: string;
