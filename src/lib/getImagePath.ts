@@ -1,5 +1,6 @@
+// src/lib/getMovies.ts
 import prisma from "@/lib/prisma";
-import { Movie, VideoProps } from "@/type";
+import { Movie, VideoProps, Genre } from "@/type";
 
 // Returns a proper image path or placeholder
 export function getImagePath(path?: string): string {
@@ -19,11 +20,11 @@ const mapMoviePaths = (movie: any): Movie => ({
   poster_path: getImagePath(movie.poster_path),
   backdrop_path: getImagePath(movie.backdrop_path),
   video: movie.video ?? false,
-  genres: movie.movieGenres?.map((mg: any) => ({
+  genres: movie.genres?.map((mg: any) => ({
     id: mg.genre.id,
     name: mg.genre.name,
   })) || [],
-  genre_ids: movie.movieGenres?.map((mg: any) => mg.genre.id) || [],
+  genre_ids: movie.genres?.map((mg: any) => mg.genre.id) || [],
   tagline: movie.tagline ?? "",
   status: movie.status ?? "Released",
   adult: movie.adult ?? false,
@@ -36,26 +37,24 @@ const fetchMovies = async (where: any = {}, orderBy: any = {}): Promise<Movie[]>
   const movies = await prisma.movie.findMany({
     where,
     orderBy,
-    include: { movieGenres: { include: { genre: true } } },
+    include: { genres: { include: { genre: true } } }, // updated relation
   });
   return movies.map(mapMoviePaths);
 };
 
-// Now playing
+// -------------------------
+// Movies queries
+// -------------------------
 export const getNowPlayingMovies = () =>
   fetchMovies({ release_date: { lte: new Date() } }, { popularity: "desc" });
 
-// Upcoming
 export const getUpcomingMovies = () =>
   fetchMovies({ release_date: { gt: new Date() } }, { release_date: "asc" });
 
-// Top rated
 export const getTopRatedMovies = () => fetchMovies({}, { vote_average: "desc" });
 
-// Popular
 export const getPopularMovies = () => fetchMovies({}, { popularity: "desc" });
 
-// Discover movies by genre or keywords
 export const getDiscoverMovies = (genreId?: number, keywords?: string) => {
   const where: any = {};
   if (keywords) where.title = { contains: keywords, mode: "insensitive" };
@@ -64,20 +63,17 @@ export const getDiscoverMovies = (genreId?: number, keywords?: string) => {
   );
 };
 
-// Search movies
 export const getSearchedMovies = (term: string) =>
   fetchMovies({ title: { contains: term, mode: "insensitive" } }, { popularity: "desc" });
 
-// Single movie details
 export const getMovieDetails = async (id: number): Promise<Movie | null> => {
   const movie = await prisma.movie.findUnique({
     where: { id },
-    include: { movieGenres: { include: { genre: true } } },
+    include: { genres: { include: { genre: true } } },
   });
   return movie ? mapMoviePaths(movie) : null;
 };
 
-// Movie videos
 export const getMovieVideos = async (movieId: number): Promise<VideoProps[]> => {
   const videos = await prisma.video.findMany({ where: { movieId } });
   return videos.map((v) => ({
@@ -95,17 +91,18 @@ export const getMovieVideos = async (movieId: number): Promise<VideoProps[]> => 
   }));
 };
 
-// Get all genres
-export const getAllGenres = async (): Promise<{ id: number; name: string }[]> => {
+// -------------------------
+// Genres
+// -------------------------
+export const getAllGenres = async (): Promise<Genre[]> => {
   return prisma.genre.findMany();
 };
 
-// Get movies by genre
 export const getMoviesByGenre = async (genreId: number): Promise<Movie[]> => {
   const movies = await prisma.movie.findMany({
-    include: { movieGenres: { include: { genre: true } } },
+    include: { genres: { include: { genre: true } } },
   });
   return movies
-    .filter((m) => m.movieGenres.some((mg: any) => mg.genre.id === genreId))
+    .filter((m) => m.genres.some((mg: any) => mg.genre.id === genreId))
     .map(mapMoviePaths);
 };

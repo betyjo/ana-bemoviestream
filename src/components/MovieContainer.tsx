@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Movie } from "../../type";
+import { Movie } from "@/type";
 import MovieCard from "./MovieCard";
 import { cn } from "@/lib/utils";
 

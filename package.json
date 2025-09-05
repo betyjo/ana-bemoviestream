@@ -37,7 +37,8 @@
   "devDependencies": {
     "@eslint/eslintrc": "^3",
     "@tailwindcss/postcss": "^4",
-    "@types/node": "^20",
+    "@types/bcrypt": "^6.0.0",
+    "@types/node": "^20.19.13",
     "@types/react": "^19.1.12",
     "@types/react-dom": "^19",
     "@types/react-youtube": "^7.6.2",

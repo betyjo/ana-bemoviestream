@@ -1,15 +1,7 @@
 import NextAuth, { AuthOptions } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
-
-// Using an in-memory admin example for now
-// You should replace this with Prisma in production
-const ADMIN_USER = {
-  id: "1",
-  name: "Admin",
-  username: "admin",
-  password: "password",
-  role: "admin",
-};
+import prisma from "./prisma";
+import bcrypt from "bcrypt";
 
 export const authOptions: AuthOptions = {
   providers: [
@@ -22,19 +14,15 @@ export const authOptions: AuthOptions = {
       async authorize(credentials) {
         if (!credentials?.username || !credentials.password) return null;
 
-        // Simple hardcoded admin check
-        if (
-          credentials.username === ADMIN_USER.username &&
-          credentials.password === ADMIN_USER.password
-        ) {
-          return {
-            id: ADMIN_USER.id,
-            name: ADMIN_USER.name,
-            role: ADMIN_USER.role,
-          };
-        }
+        const user = await prisma.user.findUnique({
+          where: { username: credentials.username },
+        });
+        if (!user) return null;
 
-        return null;
+        const isValid = await bcrypt.compare(credentials.password, user.password);
+        if (!isValid) return null;
+
+        return { id: user.id, username: user.username, role: user.role };
       },
     }),
   ],
@@ -43,17 +31,13 @@ export const authOptions: AuthOptions = {
   },
   callbacks: {
     async jwt({ token, user }: { token: any; user?: any }) {
-      if (user) {
-        token.id = user.id;
-        token.name = user.name;
-        token.role = user.role;
-      }
+      if (user) token.id = user.id;
+      if (user) token.role = user.role;
       return token;
     },
     async session({ session, token }: { session: any; token: any }) {
       if (session.user) {
         session.user.id = token.id;
-        session.user.name = token.name;
         session.user.role = token.role;
       }
       return session;
@@ -63,6 +47,3 @@ export const authOptions: AuthOptions = {
     signIn: "/auth/signin",
   },
 };
-
-const handler = NextAuth(authOptions);
-export { handler as GET, handler as POST };

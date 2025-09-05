@@ -1,9 +1,10 @@
-import { PrismaClient } from "@prisma/client";
+const { PrismaClient } = require("@prisma/client");
+const bcrypt = require("bcrypt");
 
 const prisma = new PrismaClient();
 
 async function main() {
- 
+  // 1️⃣ Seed genres
   const genresData = [
     { id: 1, name: "Action" },
     { id: 2, name: "Comedy" },
@@ -119,7 +120,6 @@ async function main() {
     },
   ];
 
-  // 3️⃣ Insert movies and link genres via junction table
   for (const movie of moviesData) {
     const createdMovie = await prisma.movie.create({
       data: {
@@ -144,7 +144,19 @@ async function main() {
     });
   }
 
-  console.log("✅ Seeded all genres and movies successfully!");
+  // 3️⃣ Seed a demo admin user
+  const adminPassword = await bcrypt.hash("admin123", 10);
+  await prisma.user.upsert({
+    where: { username: "admin" },
+    update: {},
+    create: {
+      username: "admin",
+      password: adminPassword,
+      role: "ADMIN",
+    },
+  });
+
+  console.log("Seeded all genres, movies, and admin user successfully!");
 }
 
 main()

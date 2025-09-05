@@ -1,3 +1,4 @@
+"use client";
 import Image from "next/image";
 import Link from "next/link";
 
@@ -108,6 +109,14 @@ const Footer = () => {
         <h2 className="text-base uppercase font-bold text-white tracking-wide border-b border-b-gray-600 py-2 mb-5 relative">
           Connect with Us
           <span className="w-16 h-1 bg-red-600 inline-block absolute left-0 -bottom-[1.5px] z-10" />
+          <div className="mt-4">
+            <button
+              onClick={() => alert("Sign Out clicked")} // replace with actual logout logic
+              className="bg-red-600 hover:bg-red-700 text-white py-2 px-4 rounded w-full"
+            >
+              Sign Out
+            </button>
+          </div>
         </h2>
         <div className="text-gray-300 text-sm flex flex-col gap-2">
           <p>

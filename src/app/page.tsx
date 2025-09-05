@@ -1,13 +1,14 @@
 // src/app/page.tsx
 import HeroCarousel from "@/components/HeroCarousel";
 import MovieContainer from "@/components/MovieContainer";
-import CaroselBanner from "@/components/CaroselBanner"; // optional if you still want it
+import CaroselBanner from "@/components/CaroselBanner";
 import {
   getNowPlayingMovies,
   getUpcomingMovies,
   getTopRatedMovies,
   getPopularMovies,
 } from "@/lib/getMovies";
+import Image from "next/image";
 
 export default async function Home() {
   // Fetch movies
@@ -23,6 +24,11 @@ export default async function Home() {
     >
       {/* Optional overlay for better readability */}
       <div className="absolute inset-0 bg-black/40"></div>
+
+      {/* Logo on the side */}
+      <div className="absolute top-4 left-4 z-20">
+        <Image src="/logo.png" alt="Logo" width={60} height={60} />
+      </div>
 
       {/* Page content */}
       <div className="relative z-10 space-y-6">
