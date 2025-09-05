@@ -27,11 +27,20 @@ export default function AdminMovieForm() {
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
   ) => {
-    const { name, value, type, checked } = e.target;
-    setForm((prev) => ({
-      ...prev,
-      [name]: type === "checkbox" ? checked : value,
-    }));
+    const { name, value, type } = e.target;
+
+    if (type === "checkbox") {
+      const target = e.target as HTMLInputElement;
+      setForm((prev) => ({
+        ...prev,
+        [name]: target.checked,
+      }));
+    } else {
+      setForm((prev) => ({
+        ...prev,
+        [name]: value,
+      }));
+    }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -47,7 +56,8 @@ export default function AdminMovieForm() {
       if (res.ok) {
         router.push("/movies");
       } else {
-        console.error(await res.json());
+        const data = await res.json();
+        console.error("Error creating movie:", data);
       }
     } catch (err) {
       console.error(err);
@@ -166,6 +176,7 @@ export default function AdminMovieForm() {
         onChange={handleChange}
         className="border p-2 rounded"
       />
+
       <label className="flex items-center gap-2">
         <input
           type="checkbox"
@@ -175,6 +186,7 @@ export default function AdminMovieForm() {
         />
         Adult
       </label>
+
       <label className="flex items-center gap-2">
         <input
           type="checkbox"
@@ -184,6 +196,7 @@ export default function AdminMovieForm() {
         />
         Video
       </label>
+
       <button type="submit" className="bg-blue-600 text-white p-2 rounded mt-2">
         Add Movie
       </button>
